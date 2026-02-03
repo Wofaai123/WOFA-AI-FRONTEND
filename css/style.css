@@ -258,3 +258,20 @@ body.dark .lesson-list li {
   color: white;
   font-weight: bold;
 }
+.learning-panel {
+  position: relative;
+  z-index: 5;
+}
+
+.course-list li,
+.lesson-list li {
+  cursor: pointer;
+  user-select: none;
+}
+
+.course-list li.active,
+.lesson-list li.active {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: bold;
+}
