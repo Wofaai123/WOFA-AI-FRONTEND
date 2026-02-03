@@ -1,24 +1,24 @@
-// =========================
-// CONFIG
-// =========================
+/* =========================
+   API BASE
+   ========================= */
 const API_BASE = "https://wofa-ai-backend.onrender.com/api";
 
-// =========================
-// DOM ELEMENTS
-// =========================
+/* =========================
+   DOM ELEMENTS
+   ========================= */
 const coursesList = document.getElementById("coursesList");
 const lessonsList = document.getElementById("lessonsList");
 const chatBox = document.getElementById("chatBox");
 
-// =========================
-// STATE
-// =========================
+/* =========================
+   STATE
+   ========================= */
 let activeCourseId = null;
 let activeLessonId = null;
 
-// =========================
-// LOAD COURSES
-// =========================
+/* =========================
+   LOAD COURSES
+   ========================= */
 async function loadCourses() {
   coursesList.innerHTML = "<li>Loading courses...</li>";
   lessonsList.innerHTML = "";
@@ -29,42 +29,49 @@ async function loadCourses() {
 
     coursesList.innerHTML = "";
 
-    if (!Array.isArray(courses) || courses.length === 0) {
-      coursesList.innerHTML = "<li>No courses found</li>";
+    if (!courses.length) {
+      coursesList.innerHTML = "<li>No courses available</li>";
       return;
     }
 
     courses.forEach(course => {
       const li = document.createElement("li");
       li.textContent = course.title;
-      li.dataset.id = course._id;
 
-      li.addEventListener("click", () => {
-        selectCourse(course._id, li);
-      });
-
+      li.addEventListener("click", () => toggleCourse(course._id, li));
       coursesList.appendChild(li);
     });
 
   } catch (err) {
+    coursesList.innerHTML = "<li>Failed to load courses</li>";
     console.error(err);
-    coursesList.innerHTML = "<li>Error loading courses</li>";
   }
 }
 
-// =========================
-// SELECT COURSE → LOAD LESSONS
-// =========================
-async function selectCourse(courseId, element) {
-  activeCourseId = courseId;
+/* =========================
+   TOGGLE COURSE (EXPAND/COLLAPSE)
+   ========================= */
+async function toggleCourse(courseId, element) {
+  const isSameCourse = activeCourseId === courseId;
 
+  // Reset all courses
   document
     .querySelectorAll(".course-list li")
     .forEach(li => li.classList.remove("active"));
 
+  lessonsList.classList.remove("open");
+  lessonsList.innerHTML = "";
+
+  if (isSameCourse) {
+    activeCourseId = null;
+    return;
+  }
+
+  activeCourseId = courseId;
   element.classList.add("active");
 
   lessonsList.innerHTML = "<li>Loading lessons...</li>";
+  lessonsList.classList.add("open");
 
   try {
     const res = await fetch(`${API_BASE}/lessons/${courseId}`);
@@ -72,7 +79,7 @@ async function selectCourse(courseId, element) {
 
     lessonsList.innerHTML = "";
 
-    if (!Array.isArray(lessons) || lessons.length === 0) {
+    if (!lessons.length) {
       lessonsList.innerHTML = "<li>No lessons yet</li>";
       return;
     }
@@ -80,9 +87,9 @@ async function selectCourse(courseId, element) {
     lessons.forEach(lesson => {
       const li = document.createElement("li");
       li.textContent = lesson.title;
-      li.dataset.id = lesson._id;
 
-      li.addEventListener("click", () => {
+      li.addEventListener("click", e => {
+        e.stopPropagation(); // prevent collapsing course
         selectLesson(lesson._id, li);
       });
 
@@ -90,14 +97,14 @@ async function selectCourse(courseId, element) {
     });
 
   } catch (err) {
+    lessonsList.innerHTML = "<li>Failed to load lessons</li>";
     console.error(err);
-    lessonsList.innerHTML = "<li>Error loading lessons</li>";
   }
 }
 
-// =========================
-// SELECT LESSON
-// =========================
+/* =========================
+   SELECT LESSON
+   ========================= */
 function selectLesson(lessonId, element) {
   activeLessonId = lessonId;
 
@@ -109,18 +116,18 @@ function selectLesson(lessonId, element) {
 
   localStorage.setItem("activeLessonId", lessonId);
 
-  chatBox.insertAdjacentHTML(
-    "beforeend",
-    `<div class="message ai">
-      📘 <b>Lesson selected.</b><br>
-      You can now ask questions about this lesson.
-    </div>`
-  );
-
-  chatBox.scrollTop = chatBox.scrollHeight;
+  if (chatBox) {
+    chatBox.innerHTML += `
+      <div class="message ai">
+        📘 Lesson selected.<br>
+        Ask questions about this lesson.
+      </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 }
 
-// =========================
-// INIT (SAFE)
-// =========================
+/* =========================
+   INIT
+   ========================= */
 document.addEventListener("DOMContentLoaded", loadCourses);

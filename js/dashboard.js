@@ -1,3 +1,9 @@
+const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "login.html";
+}
+
 // frontend/js/dashboard.js
 
 async function loadProgress() {

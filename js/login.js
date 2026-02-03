@@ -1,55 +1,69 @@
-const loginForm = document.getElementById("loginForm");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const errorBox = document.getElementById("loginError");
+const API_BASE = "https://wofa-ai-backend.onrender.com/api";
 
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+/* =========================
+   EMAIL / PASSWORD LOGIN
+   ========================= */
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
   if (!email || !password) {
-    showError("Email and password are required");
+    alert("Email and password required");
     return;
   }
 
   try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
     });
 
     const data = await res.json();
 
-    if (!res.ok || !data.token) {
-      showError(data.message || "Login failed");
+    if (!res.ok) {
+      alert(data.message || "Login failed");
       return;
     }
 
-    // ✅ SAVE AUTH DATA
     localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-    if (data.user && data.user.id) {
-      localStorage.setItem("userId", data.user.id);
-    }
-
-    // ✅ REDIRECT TO CHAT
     window.location.href = "index.html";
 
   } catch (err) {
-    showError("Server connection failed");
+    alert("Server error");
+    console.error(err);
   }
-});
+}
 
-function showError(msg) {
-  if (errorBox) {
-    errorBox.textContent = msg;
-    errorBox.style.display = "block";
-  } else {
-    alert(msg);
+/* =========================
+   GOOGLE LOGIN HANDLER
+   ========================= */
+async function handleGoogleLogin(response) {
+  try {
+    const res = await fetch(`${API_BASE}/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        idToken: response.credential
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Google login failed");
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    window.location.href = "index.html";
+
+  } catch (err) {
+    console.error("Google login error:", err);
+    alert("Google login failed");
   }
 }

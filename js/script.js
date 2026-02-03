@@ -1,19 +1,40 @@
 /* =========================
+   AUTH GUARD (RUN FIRST)
+   ========================= */
+const token = localStorage.getItem("token");
+if (!token) {
+  window.location.href = "login.html";
+}
+
+/* =========================
+   GLOBAL STATE
+   ========================= */
+let lastAIMessageElement = null; // 🔑 single source of truth
+let lastUploadedImage = null;
+let speechUtterance = null;
+
+/* =========================
    DOM ELEMENTS (SAFE)
    ========================= */
 const chatBox = document.getElementById("chatBox");
 const input = document.getElementById("questionInput");
 const imageInput = document.getElementById("imageInput");
+const learningContext = document.getElementById("learningContext");
+const darkToggle = document.getElementById("darkToggle");
+const talkBtn = document.getElementById("talkBtn");
 
 if (!chatBox || !input) {
   console.warn("Chat UI not found on this page.");
 }
-const learningContext = document.getElementById("learningContext");
 
-const activeLesson = localStorage.getItem("activeLessonId");
-if (learningContext && activeLesson) {
+/* =========================
+   LESSON CONTEXT
+   ========================= */
+const activeLessonId = localStorage.getItem("activeLessonId");
+if (learningContext && activeLessonId) {
   learningContext.innerText = "📘 You are studying a lesson";
 }
+
 /* =========================
    DARK MODE
    ========================= */
@@ -25,7 +46,6 @@ function toggleDarkMode() {
   );
 }
 
-// Load saved theme
 (function loadTheme() {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
@@ -33,25 +53,25 @@ function toggleDarkMode() {
   }
 })();
 
-/* =========================
-   STATE
-   ========================= */
-let lastAIAnswer = "";
-let lastUploadedImage = null;
-let speechUtterance = null;
+if (darkToggle) {
+  darkToggle.onclick = toggleDarkMode;
+}
 
 /* =========================
-   UTILS
+   UTIL
    ========================= */
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /* =========================
-   VOICE (TEXT → SPEECH)
+   VOICE OUTPUT (TALK + LISTEN)
    ========================= */
 function speakText(text) {
-  if (!text) return;
+  if (!text) {
+    alert("No AI answer to read yet.");
+    return;
+  }
 
   window.speechSynthesis.cancel();
 
@@ -61,6 +81,20 @@ function speakText(text) {
   speechUtterance.pitch = 1;
 
   window.speechSynthesis.speak(speechUtterance);
+}
+
+/* 🔊 TALK BUTTON — SAME ENGINE AS LISTEN */
+function readLastAnswer() {
+  if (!lastAIMessageElement) {
+    alert("No AI answer to read yet.");
+    return;
+  }
+
+  const text = lastAIMessageElement.innerText
+    .replace("🔊 Listen", "")
+    .trim();
+
+  speakText(text);
 }
 
 function stopSpeaking() {
@@ -77,6 +111,7 @@ function showThinking() {
   msg.className = "message ai thinking";
   msg.id = "thinking-indicator";
   msg.innerHTML = "WOFA AI is thinking<span class='dots'>...</span>";
+
   chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -128,13 +163,20 @@ async function typeAIMessage(text, images = []) {
     msg.appendChild(img);
   });
 
+  // 🔑 SAVE LAST AI MESSAGE
+  lastAIMessageElement = msg;
+
+  // Enable Talk button
+  if (talkBtn) {
+    talkBtn.disabled = false;
+  }
+
+  // 🔊 INLINE LISTEN BUTTON (same source as Talk)
   const speakBtn = document.createElement("button");
   speakBtn.textContent = "🔊 Listen";
   speakBtn.className = "speak-btn";
-  speakBtn.onclick = () => speakText(text);
+  speakBtn.onclick = readLastAnswer;
   msg.appendChild(speakBtn);
-
-  lastAIAnswer = text;
 }
 
 /* =========================
@@ -144,26 +186,33 @@ async function sendQuestion() {
   const question = input.value.trim();
   if (!question && !lastUploadedImage) return;
 
-  addUserMessage(question || "📷 Image uploaded", lastUploadedImage ? [lastUploadedImage] : []);
+  addUserMessage(
+    question || "📷 Image uploaded",
+    lastUploadedImage ? [lastUploadedImage] : []
+  );
+
   input.value = "";
-
-  const lessonId = localStorage.getItem("activeLessonId");
-
   showThinking();
 
   try {
-    const res = await fetch("http://localhost:5000/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: question || "Explain the uploaded image",
-        image: lastUploadedImage,
-        lessonId
-      })
-    });
+    const res = await fetch(
+      "https://wofa-ai-backend.onrender.com/api/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          question: question || "Explain the uploaded image",
+          image: lastUploadedImage,
+          lessonId: activeLessonId
+        })
+      }
+    );
 
     const data = await res.json();
-    await sleep(600);
+    await sleep(500);
 
     removeThinking();
     await typeAIMessage(data.answer, data.images || []);
@@ -187,28 +236,38 @@ if (imageInput) {
     const reader = new FileReader();
     reader.onload = () => {
       lastUploadedImage = reader.result;
-      addUserMessage("📷 Image uploaded. Ask me to explain it.", [reader.result]);
+      addUserMessage(
+        "📷 Image uploaded. Ask me to explain it.",
+        [reader.result]
+      );
     };
     reader.readAsDataURL(file);
   });
 }
 
 /* =========================
-   VOICE INPUT
+   VOICE INPUT (SPEECH → TEXT)
    ========================= */
 function startVoiceInput() {
   if (!("webkitSpeechRecognition" in window)) {
-    alert("Voice input not supported.");
+    alert("Voice input not supported in this browser.");
     return;
   }
 
   const recognition = new webkitSpeechRecognition();
   recognition.lang = "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
   recognition.start();
+
   recognition.onresult = e => {
     input.value = e.results[0][0].transcript;
     sendQuestion();
+  };
+
+  recognition.onerror = () => {
+    alert("Voice input failed. Try again.");
   };
 }
 
@@ -217,25 +276,27 @@ function startVoiceInput() {
    ========================= */
 function clearChat() {
   stopSpeaking();
+  lastAIMessageElement = null;
+  lastUploadedImage = null;
+
+  if (talkBtn) {
+    talkBtn.disabled = true;
+  }
+
   chatBox.innerHTML = `
     <div class="message ai">
       Hello 👋 I’m <b>WOFA AI</b>.<br>
       Ask a question, speak, or upload an image.
     </div>
   `;
-  lastAIAnswer = "";
-  lastUploadedImage = null;
-}
-const toggle = document.getElementById("darkToggle");
-
-if (localStorage.getItem("dark") === "true") {
-  document.body.classList.add("dark");
 }
 
-toggle.onclick = () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem(
-    "dark",
-    document.body.classList.contains("dark")
-  );
-};
+/* =========================
+   LOGOUT (NAV)
+   ========================= */
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("activeLessonId");
+  window.location.href = "login.html";
+}
