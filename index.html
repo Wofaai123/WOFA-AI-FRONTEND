@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WOFA AI – Smart Education Assistant</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="chat-page">
+
+  <!-- =========================
+       TOP BAR (LOGO | TITLE | DARK MODE)
+       ========================= -->
+<!-- 🟢 TITLE + LOGO (Top Center) -->
+<div class="app-title">
+  <img src="assets/logo.png" alt="WOFA AI Logo" class="app-logo" />
+  <div class="title-text">
+    <div class="name">WOFA AI</div>
+    <div class="tagline">Visual Learning Assistant</div>
+  </div>
+</div>
+
+
+
+    <!-- 🔵 DARK MODE (Blue area) -->
+    <button
+      id="darkToggle"
+      class="dark-toggle"
+      title="Toggle Dark Mode"
+      onclick="toggleDarkMode()"
+    >
+      🌙
+    </button>
+
+  </div>
+
+  <!-- =========================
+       MAIN CHAT AREA (Black box)
+       ========================= -->
+  <div class="chat-container">
+
+    <!-- COURSES & LESSONS -->
+    <div class="learning-panel">
+      <h3>Courses</h3>
+      <ul id="coursesList" class="course-list"></ul>
+
+      <h4>Lessons</h4>
+      <ul id="lessonsList" class="lesson-list"></ul>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat-box" id="chatBox">
+      <div class="message ai">
+        Hello 👋 I’m <b>WOFA AI</b>.<br>
+        Ask a question, upload an image, or use your voice.
+      </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="chat-input">
+
+      <label class="icon-btn" title="Upload Image">
+        📷
+        <input type="file" id="imageInput" accept="image/*" hidden />
+      </label>
+
+      <button class="icon-btn" onclick="startVoiceInput()">🎤</button>
+
+      <input
+        type="text"
+        id="questionInput"
+        placeholder="Ask WOFA AI..."
+        autocomplete="off"
+      />
+
+      <button class="send-btn" onclick="sendQuestion()">Send</button>
+    </div>
+
+  </div>
+
+  <!-- =========================
+       ACTION BAR (Red area)
+       ========================= -->
+  <div class="bottom-actions">
+    <button class="talk-btn" onclick="readLastAnswer()">🔊 Talk</button>
+    <button class="clear-btn" onclick="clearChat()">🧹 Clear</button>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/script.js"></script>
+  <script src="js/learningPanel.js"></script>
+
+</body>
+</html>
