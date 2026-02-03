@@ -9,7 +9,7 @@
 }
 
 /* =========================
-   BACKGROUND
+   PAGE BACKGROUND
    ========================= */
 body {
   min-height: 100vh;
@@ -17,61 +17,73 @@ body {
 }
 
 /* =========================
-   TOP BAR (Yellow / Green / Blue)
+   NAV BAR
+   ========================= */
+.nav-bar {
+  display: flex;
+  gap: 20px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+}
+
+.nav-bar a {
+  text-decoration: none;
+  font-weight: bold;
+  color: #1e3a8a;
+}
+
+/* =========================
+   TOP BAR
    ========================= */
 .top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
+  position: relative;
+  height: 90px;
 }
+
 /* =========================
-   TOP CENTER BRANDING
+   APP TITLE (CENTER)
    ========================= */
 .app-title {
   position: absolute;
-  top: 16px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
-
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  gap: 0; /* 🚫 NO SPACE between logo and text */
-  z-index: 100;
+  gap: 0;
+  z-index: 10;
 }
 
-/* LOGO */
 .app-logo {
-  width: 220px;
+  width: 160px;
   height: auto;
-  object-fit: contain;
 }
 
-/* TEXT */
 .title-text {
   display: flex;
   flex-direction: column;
-  margin-left: 0; /* 🚫 no gap */
 }
 
 .title-text .name {
-  font-size: 44px;
+  font-size: 36px;
   font-weight: bold;
-  color: green;
+  color: #0f172a;
   line-height: 1;
 }
 
 .title-text .tagline {
   font-size: 12px;
-  color: red;
-  opacity: 0.9;
-}
+  color: #334155;
 }
 
-/* 🔵 DARK MODE */
+/* =========================
+   DARK MODE TOGGLE
+   ========================= */
 .dark-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   background: #ffffff;
   border: none;
   border-radius: 10px;
@@ -81,13 +93,117 @@ body {
 }
 
 /* =========================
-   MAIN CHAT CONTAINER (Black box)
+   MAIN LAYOUT
+   ========================= */
+.main-layout {
+  display: flex;
+  width: 95%;
+  max-width: 1400px;
+  height: calc(100vh - 160px);
+  margin: 0 auto;
+  gap: 12px;
+}
+
+/* =========================
+   LEARNING PANEL (SIDEBAR)
+   ========================= */
+.learning-panel {
+  width: 260px;
+  background: #eef2ff;
+  border-radius: 14px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.learning-header {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.learning-hint {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* =========================
+   COURSE LIST
+   ========================= */
+.course-list {
+  list-style: none;
+}
+
+.course-list li {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.course-list li:hover {
+  background: #dbeafe;
+}
+
+.course-list li.active {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Arrow */
+.course-list li::after {
+  content: "▶";
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  transition: transform 0.3s;
+}
+
+.course-list li.active::after {
+  content: "▼";
+}
+
+/* =========================
+   LESSON SUBLIST (DROPDOWN)
+   ========================= */
+.lesson-list {
+  list-style: none;
+  margin-top: 6px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.lesson-list.open {
+  max-height: 500px;
+}
+
+.lesson-list li {
+  padding: 8px;
+  margin-top: 4px;
+  background: #f8fafc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.lesson-list li:hover {
+  background: #bfdbfe;
+}
+
+.lesson-list li.active {
+  background: #16a34a;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* =========================
+   CHAT CONTAINER
    ========================= */
 .chat-container {
-  width: 90%;
-  max-width: 1150px;
-  height: 85vh;
-  margin: 10px auto;
+  flex: 1;
   background: #ffffff;
   border-radius: 16px;
   display: flex;
@@ -97,30 +213,7 @@ body {
 }
 
 /* =========================
-   LEARNING PANEL
-   ========================= */
-.learning-panel {
-  padding: 10px;
-  background: #eef2ff;
-  border-bottom: 1px solid #c7d2fe;
-}
-
-.course-list,
-.lesson-list {
-  list-style: none;
-}
-
-.course-list li,
-.lesson-list li {
-  padding: 7px;
-  margin: 4px 0;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* =========================
-   CHAT
+   CHAT BOX
    ========================= */
 .chat-box {
   flex: 1;
@@ -154,6 +247,7 @@ body {
   gap: 8px;
   padding: 10px;
   background: #ffffff;
+  border-top: 1px solid #e5e7eb;
 }
 
 .chat-input input {
@@ -181,12 +275,12 @@ body {
 }
 
 /* =========================
-   BOTTOM ACTION BAR (Red area)
+   ACTION BAR
    ========================= */
 .bottom-actions {
-  width: 90%;
-  max-width: 1100px;
-  margin: 10px auto 20px;
+  width: 95%;
+  max-width: 1400px;
+  margin: 10px auto;
   display: flex;
   gap: 12px;
 }
@@ -196,10 +290,9 @@ body {
   padding: 14px;
   background: #16a34a;
   color: white;
-  border: none;
   border-radius: 12px;
-  font-size: 15px;
   font-weight: bold;
+  border: none;
   cursor: pointer;
 }
 
@@ -208,10 +301,9 @@ body {
   padding: 14px;
   background: #dc2626;
   color: white;
-  border: none;
   border-radius: 12px;
-  font-size: 15px;
   font-weight: bold;
+  border: none;
   cursor: pointer;
 }
 
@@ -237,41 +329,25 @@ body.dark .lesson-list li {
   background: #1e293b;
   color: #e5e7eb;
 }
+
 /* =========================
-   MOBILE COURSE PANEL
+   MOBILE
    ========================= */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .main-layout {
+    flex-direction: column;
+  }
+
   .learning-panel {
-    max-height: 160px;
-    overflow-y: auto;
-  }
-
-  .course-list li,
-  .lesson-list li {
-    font-size: 14px;
-    padding: 10px;
+    width: 100%;
+    max-height: 200px;
   }
 }
-.course-list li.active,
-.lesson-list li.active {
-  background: #2563eb;
-  color: white;
+.google-btn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  padding: 12px;
+  width: 100%;
   font-weight: bold;
-}
-.learning-panel {
-  position: relative;
-  z-index: 5;
-}
-
-.course-list li,
-.lesson-list li {
   cursor: pointer;
-  user-select: none;
-}
-
-.course-list li.active,
-.lesson-list li.active {
-  background: #2563eb;
-  color: #ffffff;
-  font-weight: bold;
 }
