@@ -1,38 +1,35 @@
-const API_BASE = "http://localhost:5000/api";
+// =========================
+// API BASE (Render backend)
+// =========================
+const API_BASE = "https://wofa-ai-backend.onrender.com/api";
 
-const token = localStorage.getItem("token");
+// =========================
+// DOM ELEMENTS
+// =========================
+const coursesList = document.getElementById("coursesList");
+const lessonsList = document.getElementById("lessonsList");
 
-async function apiGet(path) {
-  const res = await fetch(API_BASE + path, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+// =========================
+// STATE
+// =========================
+let activeCourseId = null;
+let activeLessonId = null;
 
-  if (!res.ok) throw new Error("API error");
-  return res.json();
-}
-
+// =========================
+// LOAD COURSES
+// =========================
 async function loadCourses() {
-  const list = document.getElementById("coursesList");
-  list.innerHTML = "";
+  coursesList.innerHTML = "<li>Loading courses...</li>";
+  lessonsList.innerHTML = "";
 
   try {
-    // 🔹 Get subjects first
-    const subjects = await apiGet("/subjects");
+    const res = await fetch(`${API_BASE}/courses`);
+    const courses = await res.json();
 
-    if (subjects.length === 0) {
-      list.innerHTML = "<li>No subjects found</li>";
-      return;
-    }
+    coursesList.innerHTML = "";
 
-    // 🔹 Use FIRST subject by default
-    const subjectId = subjects[0]._id;
-
-    const courses = await apiGet(`/courses/${subjectId}`);
-
-    if (courses.length === 0) {
-      list.innerHTML = "<li>No courses yet</li>";
+    if (!courses.length) {
+      coursesList.innerHTML = "<li>No courses available</li>";
       return;
     }
 
@@ -40,52 +37,82 @@ async function loadCourses() {
       const li = document.createElement("li");
       li.textContent = course.title;
 
-      li.onclick = () => loadLessons(course._id);
-      list.appendChild(li);
+      li.onclick = () => selectCourse(course._id, li);
+      coursesList.appendChild(li);
     });
 
   } catch (err) {
-    list.innerHTML = "<li>Failed to load courses</li>";
+    coursesList.innerHTML = "<li>Failed to load courses</li>";
     console.error(err);
   }
 }
 
-async function loadLessons(courseId) {
-  const list = document.getElementById("lessonsList");
-  list.innerHTML = "";
+// =========================
+// SELECT COURSE → LOAD LESSONS
+// =========================
+async function selectCourse(courseId, element) {
+  activeCourseId = courseId;
+
+  // highlight active course
+  document
+    .querySelectorAll(".course-list li")
+    .forEach(li => li.classList.remove("active"));
+
+  element.classList.add("active");
+
+  lessonsList.innerHTML = "<li>Loading lessons...</li>";
 
   try {
-    const lessons = await apiGet(`/lessons/${courseId}`);
+    const res = await fetch(`${API_BASE}/lessons/${courseId}`);
+    const lessons = await res.json();
+
+    lessonsList.innerHTML = "";
+
+    if (!lessons.length) {
+      lessonsList.innerHTML = "<li>No lessons yet</li>";
+      return;
+    }
 
     lessons.forEach(lesson => {
       const li = document.createElement("li");
       li.textContent = lesson.title;
 
-      li.onclick = async () => {
-        localStorage.setItem("activeLessonId", lesson._id);
-
-        const taught = await fetch(
-          `${API_BASE}/lessons/teach/${lesson._id}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ level: "Beginner" })
-          }
-        ).then(r => r.json());
-
-        document.getElementById("learningContext").innerText =
-          lesson.title;
-      };
-
-      list.appendChild(li);
+      li.onclick = () => selectLesson(lesson._id, li);
+      lessonsList.appendChild(li);
     });
 
   } catch (err) {
-    list.innerHTML = "<li>Failed to load lessons</li>";
+    lessonsList.innerHTML = "<li>Failed to load lessons</li>";
+    console.error(err);
   }
 }
 
-loadCourses();
+// =========================
+// SELECT LESSON
+// =========================
+function selectLesson(lessonId, element) {
+  activeLessonId = lessonId;
+
+  document
+    .querySelectorAll(".lesson-list li")
+    .forEach(li => li.classList.remove("active"));
+
+  element.classList.add("active");
+
+  // Store for chat context
+  localStorage.setItem("activeLessonId", lessonId);
+
+  // Visual confirmation in chat
+  const chatBox = document.getElementById("chatBox");
+  chatBox.innerHTML += `
+    <div class="message ai">
+      📘 Lesson selected.<br>
+      You can now ask questions about this lesson.
+    </div>
+  `;
+}
+
+// =========================
+// INIT
+// =========================
+document.addEventListener("DOMContentLoaded", loadCourses);
