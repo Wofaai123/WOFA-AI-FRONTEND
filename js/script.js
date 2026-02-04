@@ -9,31 +9,18 @@ if (!token) {
 /* =========================
    GLOBAL STATE
    ========================= */
-let lastAIMessageElement = null; // 🔑 single source of truth
+let lastAIMessageElement = null;
 let lastUploadedImage = null;
 let speechUtterance = null;
 
 /* =========================
-   DOM ELEMENTS (SAFE)
+   DOM ELEMENTS
    ========================= */
 const chatBox = document.getElementById("chatBox");
 const input = document.getElementById("questionInput");
 const imageInput = document.getElementById("imageInput");
-const learningContext = document.getElementById("learningContext");
 const darkToggle = document.getElementById("darkToggle");
 const talkBtn = document.getElementById("talkBtn");
-
-if (!chatBox || !input) {
-  console.warn("Chat UI not found on this page.");
-}
-
-/* =========================
-   LESSON CONTEXT
-   ========================= */
-const activeLessonId = localStorage.getItem("activeLessonId");
-if (learningContext && activeLessonId) {
-  learningContext.innerText = "📘 You are studying a lesson";
-}
 
 /* =========================
    DARK MODE
@@ -74,16 +61,13 @@ function speakText(text) {
   }
 
   window.speechSynthesis.cancel();
-
   speechUtterance = new SpeechSynthesisUtterance(text);
   speechUtterance.lang = "en-US";
   speechUtterance.rate = 0.95;
   speechUtterance.pitch = 1;
-
   window.speechSynthesis.speak(speechUtterance);
 }
 
-/* 🔊 TALK BUTTON — SAME ENGINE AS LISTEN */
 function readLastAnswer() {
   if (!lastAIMessageElement) {
     alert("No AI answer to read yet.");
@@ -106,19 +90,17 @@ function stopSpeaking() {
    ========================= */
 function showThinking() {
   removeThinking();
-
   const msg = document.createElement("div");
   msg.className = "message ai thinking";
   msg.id = "thinking-indicator";
   msg.innerHTML = "WOFA AI is thinking<span class='dots'>...</span>";
-
   chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 function removeThinking() {
-  const thinking = document.getElementById("thinking-indicator");
-  if (thinking) thinking.remove();
+  const el = document.getElementById("thinking-indicator");
+  if (el) el.remove();
 }
 
 /* =========================
@@ -129,9 +111,9 @@ function addUserMessage(text, images = []) {
   msg.className = "message user";
   msg.innerHTML = text.replace(/\n/g, "<br>");
 
-  images.forEach(url => {
+  images.forEach(src => {
     const img = document.createElement("img");
-    img.src = url;
+    img.src = src;
     msg.appendChild(img);
   });
 
@@ -140,51 +122,49 @@ function addUserMessage(text, images = []) {
 }
 
 /* =========================
-   TYPE AI MESSAGE (REALISTIC)
+   TYPE AI MESSAGE
    ========================= */
-async function typeAIMessage(text, images = []) {
+async function typeAIMessage(text) {
   const msg = document.createElement("div");
   msg.className = "message ai";
   chatBox.appendChild(msg);
 
   let i = 0;
-  const speed = 12;
-
   while (i < text.length) {
-    msg.innerHTML = text.slice(0, i).replace(/\n/g, "<br>");
+    msg.innerHTML = text.slice(0, i);
     i++;
+    await sleep(12);
     chatBox.scrollTop = chatBox.scrollHeight;
-    await sleep(speed);
   }
 
-  images.forEach(url => {
-    const img = document.createElement("img");
-    img.src = url;
-    msg.appendChild(img);
-  });
-
-  // 🔑 SAVE LAST AI MESSAGE
   lastAIMessageElement = msg;
 
-  // Enable Talk button
-  if (talkBtn) {
-    talkBtn.disabled = false;
-  }
+  if (talkBtn) talkBtn.disabled = false;
 
-  // 🔊 INLINE LISTEN BUTTON (same source as Talk)
   const speakBtn = document.createElement("button");
-  speakBtn.textContent = "🔊 Listen";
   speakBtn.className = "speak-btn";
+  speakBtn.textContent = "🔊 Listen";
   speakBtn.onclick = readLastAnswer;
   msg.appendChild(speakBtn);
 }
 
 /* =========================
-   SEND QUESTION
+   SEND QUESTION (GPT LESSON ENGINE)
    ========================= */
 async function sendQuestion() {
   const question = input.value.trim();
-  if (!question && !lastUploadedImage) return;
+  const course = localStorage.getItem("activeCourse");
+  const lesson = localStorage.getItem("activeLesson");
+
+  if (!course || !lesson) {
+    alert("Please select a course and lesson first.");
+    return;
+  }
+
+  if (!question && !lastUploadedImage) {
+    alert("Type a question or upload an image.");
+    return;
+  }
 
   addUserMessage(
     question || "📷 Image uploaded",
@@ -204,18 +184,16 @@ async function sendQuestion() {
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          question: question || "Explain the uploaded image",
-          image: lastUploadedImage,
-          lessonId: activeLessonId
+          question: question || null,
+          course,
+          lesson
         })
       }
     );
 
     const data = await res.json();
-    await sleep(500);
-
     removeThinking();
-    await typeAIMessage(data.answer, data.images || []);
+    await typeAIMessage(data.answer || "No response generated.");
 
     lastUploadedImage = null;
 
@@ -236,38 +214,28 @@ if (imageInput) {
     const reader = new FileReader();
     reader.onload = () => {
       lastUploadedImage = reader.result;
-      addUserMessage(
-        "📷 Image uploaded. Ask me to explain it.",
-        [reader.result]
-      );
+      addUserMessage("📷 Image uploaded", [reader.result]);
     };
     reader.readAsDataURL(file);
   });
 }
 
 /* =========================
-   VOICE INPUT (SPEECH → TEXT)
+   VOICE INPUT
    ========================= */
 function startVoiceInput() {
   if (!("webkitSpeechRecognition" in window)) {
-    alert("Voice input not supported in this browser.");
+    alert("Voice input not supported.");
     return;
   }
 
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = "en-US";
-  recognition.continuous = false;
-  recognition.interimResults = false;
+  const rec = new webkitSpeechRecognition();
+  rec.lang = "en-US";
+  rec.start();
 
-  recognition.start();
-
-  recognition.onresult = e => {
+  rec.onresult = e => {
     input.value = e.results[0][0].transcript;
     sendQuestion();
-  };
-
-  recognition.onerror = () => {
-    alert("Voice input failed. Try again.");
   };
 }
 
@@ -278,25 +246,20 @@ function clearChat() {
   stopSpeaking();
   lastAIMessageElement = null;
   lastUploadedImage = null;
-
-  if (talkBtn) {
-    talkBtn.disabled = true;
-  }
+  if (talkBtn) talkBtn.disabled = true;
 
   chatBox.innerHTML = `
     <div class="message ai">
       Hello 👋 I’m <b>WOFA AI</b>.<br>
-      Ask a question, speak, or upload an image.
+      Select a course and lesson to begin.
     </div>
   `;
 }
 
 /* =========================
-   LOGOUT (NAV)
+   LOGOUT
    ========================= */
 function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  localStorage.removeItem("activeLessonId");
+  localStorage.clear();
   window.location.href = "login.html";
 }
