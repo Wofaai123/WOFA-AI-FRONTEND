@@ -1,197 +1,169 @@
+/* =====================================================
+   WOFA AI — FRONTEND CHAT CONTROLLER (PRODUCTION)
+   ===================================================== */
+
 /* =========================
-   AUTH GUARD (RUN FIRST)
+   CONFIG
    ========================= */
-const token = localStorage.getItem("token");
-if (!token) {
-  window.location.href = "login.html";
+const API_BASE_URL = window.WOFA_CONFIG?.API_BASE_URL;
+
+/* =========================
+   AUTH GUARD
+   ========================= */
+const authToken = localStorage.getItem("token");
+if (!authToken) {
+  window.location.replace("login.html");
 }
 
 /* =========================
    GLOBAL STATE
    ========================= */
-let lastAIMessageElement = null;
-let lastUploadedImage = null;
-let speechUtterance = null;
+let isSending = false;
+let lastAIMessage = "";
+let speechInstance = null;
+let uploadedImageBase64 = null;
 
 /* =========================
-   DOM ELEMENTS
+   DOM REFERENCES
    ========================= */
 const chatBox = document.getElementById("chatBox");
-const input = document.getElementById("questionInput");
+const chatForm = document.getElementById("chatForm");
+const questionInput = document.getElementById("questionInput");
 const imageInput = document.getElementById("imageInput");
-const darkToggle = document.getElementById("darkToggle");
-const talkBtn = document.getElementById("talkBtn");
+const loadingIndicator = document.getElementById("loadingIndicator");
+const logoutBtn = document.getElementById("logoutBtn");
+const speakBtn = document.getElementById("speakBtn");
+const clearBtn = document.getElementById("clearBtn");
+const themeToggle = document.getElementById("themeToggle");
 
 /* =========================
-   DARK MODE
+   THEME HANDLING
    ========================= */
-function toggleDarkMode() {
-  document.body.classList.toggle("dark");
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
-}
-
 (function loadTheme() {
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-  }
+  const theme = localStorage.getItem("theme");
+  if (theme === "dark") document.body.classList.add("dark");
 })();
 
-if (darkToggle) darkToggle.onclick = toggleDarkMode;
-
-/* =========================
-   UTIL
-   ========================= */
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    localStorage.setItem(
+      "theme",
+      document.body.classList.contains("dark") ? "dark" : "light"
+    );
+  });
 }
 
 /* =========================
-   VOICE OUTPUT (TALK + LISTEN)
+   UI HELPERS
    ========================= */
-function speakText(text) {
-  if (!text) return;
-
-  window.speechSynthesis.cancel();
-  speechUtterance = new SpeechSynthesisUtterance(text);
-  speechUtterance.lang = "en-US";
-  speechUtterance.rate = 0.95;
-  speechUtterance.pitch = 1;
-  window.speechSynthesis.speak(speechUtterance);
-}
-
-function readLastAnswer() {
-  if (!lastAIMessageElement) {
-    alert("No AI answer yet.");
-    return;
-  }
-
-  const text = lastAIMessageElement.innerText
-    .replace("🔊 Listen", "")
-    .trim();
-
-  speakText(text);
-}
-
-function stopSpeaking() {
-  window.speechSynthesis.cancel();
-}
-
-/* =========================
-   THINKING INDICATOR
-   ========================= */
-function showThinking() {
-  removeThinking();
-  const msg = document.createElement("div");
-  msg.className = "message ai thinking";
-  msg.id = "thinking-indicator";
-  msg.innerHTML = "WOFA AI is thinking<span class='dots'>...</span>";
-  chatBox.appendChild(msg);
+function scrollToBottom() {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function removeThinking() {
-  const el = document.getElementById("thinking-indicator");
-  if (el) el.remove();
+function showLoading(state) {
+  loadingIndicator.classList.toggle("hidden", !state);
 }
 
 /* =========================
-   ADD USER MESSAGE
+   MESSAGE RENDERERS
    ========================= */
-function addUserMessage(text, images = []) {
-  const msg = document.createElement("div");
-  msg.className = "message user";
-  msg.innerHTML = text.replace(/\n/g, "<br>");
+function renderUserMessage(text, image = null) {
+  const div = document.createElement("div");
+  div.className = "message user";
+  div.innerHTML = text.replace(/\n/g, "<br>");
 
-  images.forEach(src => {
+  if (image) {
     const img = document.createElement("img");
-    img.src = src;
-    msg.appendChild(img);
+    img.src = image;
+    img.alt = "Uploaded image";
+    div.appendChild(img);
+  }
+
+  chatBox.appendChild(div);
+  scrollToBottom();
+}
+
+function renderAIMessage(text) {
+  const div = document.createElement("div");
+  div.className = "message ai";
+  div.innerHTML = text.replace(/\n/g, "<br>");
+
+  chatBox.appendChild(div);
+  scrollToBottom();
+
+  lastAIMessage = text;
+}
+
+/* =========================
+   API CALL (CHATGPT)
+   ========================= */
+async function sendChatRequest(payload) {
+  const res = await fetch(`${API_BASE_URL}/api/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`
+    },
+    body: JSON.stringify(payload)
   });
 
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  if (!res.ok) {
+    if (res.status === 401) {
+      logout();
+    }
+    throw new Error("API request failed");
+  }
+
+  return res.json();
 }
 
 /* =========================
-   TYPE AI MESSAGE
+   SEND MESSAGE
    ========================= */
-async function typeAIMessage(text) {
-  const msg = document.createElement("div");
-  msg.className = "message ai";
-  chatBox.appendChild(msg);
+async function handleSendMessage() {
+  if (isSending) return;
 
-  let i = 0;
-  while (i < text.length) {
-    msg.innerHTML = text.slice(0, i);
-    i++;
-    await sleep(12);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
+  const question = questionInput.value.trim();
+  if (!question && !uploadedImageBase64) return;
 
-  lastAIMessageElement = msg;
-  if (talkBtn) talkBtn.disabled = false;
+  isSending = true;
+  showLoading(true);
 
-  const speakBtn = document.createElement("button");
-  speakBtn.className = "speak-btn";
-  speakBtn.textContent = "🔊 Listen";
-  speakBtn.onclick = readLastAnswer;
-  msg.appendChild(speakBtn);
-}
-
-/* =========================
-   SEND QUESTION (OPTIONAL LESSON MODE)
-   ========================= */
-async function sendQuestion() {
-  const question = input.value.trim();
-
-  // OPTIONAL CONTEXT
-  const course = localStorage.getItem("activeCourse");
-  const lesson = localStorage.getItem("activeLesson");
-
-  if (!question && !lastUploadedImage) {
-    alert("Ask a question or upload an image.");
-    return;
-  }
-
-  addUserMessage(
-    question || "📷 Image uploaded",
-    lastUploadedImage ? [lastUploadedImage] : []
+  renderUserMessage(
+    question || "📷 Image sent",
+    uploadedImageBase64
   );
 
-  input.value = "";
-  showThinking();
+  questionInput.value = "";
 
   try {
-    const res = await fetch(
-      "https://wofa-ai-backend.onrender.com/api/chat",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          question: question || null,
-          course: course || null,
-          lesson: lesson || null
-        })
-      }
-    );
+    const response = await sendChatRequest({
+      question: question || null,
+      image: uploadedImageBase64 || null,
+      course: localStorage.getItem("activeCourse"),
+      lesson: localStorage.getItem("activeLesson")
+    });
 
-    const data = await res.json();
-    removeThinking();
-    await typeAIMessage(data.answer || "No response generated.");
-
-    lastUploadedImage = null;
+    renderAIMessage(response.answer || "No answer generated.");
+    uploadedImageBase64 = null;
 
   } catch (err) {
-    removeThinking();
-    await typeAIMessage("❌ Unable to connect to WOFA AI.");
+    renderAIMessage("❌ Unable to reach WOFA AI at the moment.");
   }
+
+  showLoading(false);
+  isSending = false;
+}
+
+/* =========================
+   FORM SUBMIT
+   ========================= */
+if (chatForm) {
+  chatForm.addEventListener("submit", e => {
+    e.preventDefault();
+    handleSendMessage();
+  });
 }
 
 /* =========================
@@ -204,8 +176,7 @@ if (imageInput) {
 
     const reader = new FileReader();
     reader.onload = () => {
-      lastUploadedImage = reader.result;
-      addUserMessage("📷 Image uploaded", [reader.result]);
+      uploadedImageBase64 = reader.result;
     };
     reader.readAsDataURL(file);
   });
@@ -216,41 +187,60 @@ if (imageInput) {
    ========================= */
 function startVoiceInput() {
   if (!("webkitSpeechRecognition" in window)) {
-    alert("Voice input not supported.");
+    alert("Voice input not supported in this browser.");
     return;
   }
 
-  const rec = new webkitSpeechRecognition();
-  rec.lang = "en-US";
-  rec.start();
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.start();
 
-  rec.onresult = e => {
-    input.value = e.results[0][0].transcript;
-    sendQuestion();
+  recognition.onresult = e => {
+    questionInput.value = e.results[0][0].transcript;
+    handleSendMessage();
   };
 }
+
+document.getElementById("voiceBtn")?.addEventListener("click", startVoiceInput);
+
+/* =========================
+   TEXT TO SPEECH
+   ========================= */
+function speakLastAnswer() {
+  if (!lastAIMessage) return;
+
+  window.speechSynthesis.cancel();
+  speechInstance = new SpeechSynthesisUtterance(lastAIMessage);
+  speechInstance.lang = "en-US";
+  speechInstance.rate = 0.95;
+
+  window.speechSynthesis.speak(speechInstance);
+}
+
+speakBtn?.addEventListener("click", speakLastAnswer);
 
 /* =========================
    CLEAR CHAT
    ========================= */
-function clearChat() {
-  stopSpeaking();
-  lastAIMessageElement = null;
-  lastUploadedImage = null;
-  if (talkBtn) talkBtn.disabled = true;
+clearBtn?.addEventListener("click", () => {
+  window.speechSynthesis.cancel();
+  lastAIMessage = "";
+  uploadedImageBase64 = null;
 
   chatBox.innerHTML = `
     <div class="message ai">
-      Hello 👋 I’m <b>WOFA AI</b>.<br>
-      Ask me anything, or optionally select a course & lesson.
+      <strong>Hello 👋 I’m WOFA AI</strong><br>
+      Ask me anything or choose a lesson.
     </div>
   `;
-}
+});
 
 /* =========================
    LOGOUT
    ========================= */
 function logout() {
   localStorage.clear();
-  window.location.href = "login.html";
+  window.location.replace("login.html");
 }
+
+logoutBtn?.addEventListener("click", logout);
