@@ -9,92 +9,75 @@
 
 <body class="chat-page">
 
-  <!-- =========================
-       NAVIGATION BAR
-       ========================= -->
+  <!-- NAV -->
   <nav class="nav-bar">
     <a href="index.html">🏠 Home</a>
     <a href="dashboard.html">📊 Dashboard</a>
     <a href="login.html" onclick="logout()">🚪 Logout</a>
   </nav>
 
-  <!-- =========================
-       TOP BAR
-       ========================= -->
+  <!-- HEADER -->
   <header class="top-bar">
     <div class="app-title">
-      <img src="assets/logo.png" alt="WOFA AI Logo" class="app-logo" />
+      <img src="assets/logo.png" class="app-logo" alt="WOFA AI" />
       <div class="title-text">
         <div class="name">WOFA AI</div>
         <div class="tagline">Visual Learning Assistant</div>
       </div>
     </div>
 
-    <button id="darkToggle" class="dark-toggle" title="Toggle Dark Mode" aria-label="Toggle dark mode">
-      🌙
-    </button>
+    <button id="darkToggle" class="dark-toggle">🌙</button>
   </header>
 
-  <!-- =========================
-       MAIN LAYOUT
-       ========================= -->
+  <!-- MAIN -->
   <main class="main-layout">
 
-    <!-- =========================
-         LEARNING SIDEBAR (now clickable)
-         ========================= -->
-    <aside class="learning-panel">
-      <div class="learning-header">
-        📘 Learning Panel
-        <small>Select a course → then a lesson</small>
-      </div>
-
-      <!-- COURSES LIST (clickable) -->
-      <ul id="coursesList" class="course-list">
-        <!-- Courses will be dynamically populated by learningPanel.js -->
-      </ul>
-    </aside>
-
-    <!-- =========================
-         CHAT AREA
-         ========================= -->
+    <!-- CHAT FIRST (IMPORTANT FOR MOBILE UX) -->
     <section class="chat-container">
       <div class="chat-box" id="chatBox">
         <div class="message ai">
-          Hello 👋 I’m <b>WOFA AI</b>.<br />
-          Select a course and lesson on the left, or ask me anything.
+          Hello 👋 I’m <b>WOFA AI</b>.<br>
+          Select a course below or ask me anything.
         </div>
       </div>
 
       <div class="chat-input">
-        <label class="icon-btn" title="Upload Image">
+        <label class="icon-btn">
           📷
-          <input type="file" id="imageInput" accept="image/*" hidden />
+          <input type="file" id="imageInput" hidden />
         </label>
 
-        <button class="icon-btn" onclick="startVoiceInput()" title="Voice Input">
-          🎤
-        </button>
+        <button class="icon-btn" onclick="startVoiceInput()">🎤</button>
 
-        <input type="text" id="questionInput" placeholder="Ask WOFA AI..." autocomplete="off" />
+        <input
+          type="text"
+          id="questionInput"
+          placeholder="Ask WOFA AI..."
+        />
 
         <button class="send-btn" onclick="sendQuestion()">Send</button>
       </div>
     </section>
 
+    <!-- LEARNING PANEL (MOVES BELOW ON MOBILE) -->
+    <aside class="learning-panel">
+      <div class="learning-header">
+        📘 Learning Panel
+        <small>Tap a course → lesson</small>
+      </div>
+
+      <ul id="coursesList" class="course-list"></ul>
+    </aside>
+
   </main>
 
-  <!-- =========================
-       ACTION BAR
-       ========================= -->
+  <!-- ACTION BAR -->
   <footer class="bottom-actions">
     <button class="talk-btn" onclick="readLastAnswer()">🔊 Talk</button>
     <button class="clear-btn" onclick="clearChat()">🧹 Clear</button>
   </footer>
 
-  <!-- =========================
-       SCRIPTS
-       ========================= -->
+  <!-- SCRIPTS -->
   <script src="js/script.js"></script>
   <script src="js/learningPanel.js"></script>
 
