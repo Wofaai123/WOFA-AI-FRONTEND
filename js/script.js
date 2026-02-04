@@ -40,9 +40,7 @@ function toggleDarkMode() {
   }
 })();
 
-if (darkToggle) {
-  darkToggle.onclick = toggleDarkMode;
-}
+if (darkToggle) darkToggle.onclick = toggleDarkMode;
 
 /* =========================
    UTIL
@@ -55,10 +53,7 @@ function sleep(ms) {
    VOICE OUTPUT (TALK + LISTEN)
    ========================= */
 function speakText(text) {
-  if (!text) {
-    alert("No AI answer to read yet.");
-    return;
-  }
+  if (!text) return;
 
   window.speechSynthesis.cancel();
   speechUtterance = new SpeechSynthesisUtterance(text);
@@ -70,7 +65,7 @@ function speakText(text) {
 
 function readLastAnswer() {
   if (!lastAIMessageElement) {
-    alert("No AI answer to read yet.");
+    alert("No AI answer yet.");
     return;
   }
 
@@ -138,7 +133,6 @@ async function typeAIMessage(text) {
   }
 
   lastAIMessageElement = msg;
-
   if (talkBtn) talkBtn.disabled = false;
 
   const speakBtn = document.createElement("button");
@@ -149,20 +143,17 @@ async function typeAIMessage(text) {
 }
 
 /* =========================
-   SEND QUESTION (GPT LESSON ENGINE)
+   SEND QUESTION (OPTIONAL LESSON MODE)
    ========================= */
 async function sendQuestion() {
   const question = input.value.trim();
+
+  // OPTIONAL CONTEXT
   const course = localStorage.getItem("activeCourse");
   const lesson = localStorage.getItem("activeLesson");
 
-  if (!course || !lesson) {
-    alert("Please select a course and lesson first.");
-    return;
-  }
-
   if (!question && !lastUploadedImage) {
-    alert("Type a question or upload an image.");
+    alert("Ask a question or upload an image.");
     return;
   }
 
@@ -185,8 +176,8 @@ async function sendQuestion() {
         },
         body: JSON.stringify({
           question: question || null,
-          course,
-          lesson
+          course: course || null,
+          lesson: lesson || null
         })
       }
     );
@@ -251,7 +242,7 @@ function clearChat() {
   chatBox.innerHTML = `
     <div class="message ai">
       Hello 👋 I’m <b>WOFA AI</b>.<br>
-      Select a course and lesson to begin.
+      Ask me anything, or optionally select a course & lesson.
     </div>
   `;
 }
