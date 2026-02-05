@@ -85,6 +85,93 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "ict105", title: "Cloud Computing & Virtualization" },
       ],
     },
+    // ───────────────────────────────────────────────
+// BUSINESS & PRACTICAL ECONOMICS (GHANA + GLOBAL)
+// ───────────────────────────────────────────────
+{
+  id: "business-communication",
+  title: "Business Communication",
+  lessons: [
+    { id: "bc101", title: "Introduction to Business Communication" },
+    { id: "bc102", title: "Formal Letters and Email Writing" },
+    { id: "bc103", title: "Business Report Writing" },
+    { id: "bc104", title: "Presentation Skills and Public Speaking" },
+    { id: "bc105", title: "Negotiation and Conflict Resolution" },
+    { id: "bc106", title: "Professional Communication Etiquette" },
+  ],
+},
+
+{
+  id: "entrepreneurship",
+  title: "Entrepreneurship",
+  lessons: [
+    { id: "ent101", title: "What is Entrepreneurship?" },
+    { id: "ent102", title: "Business Ideas and Opportunity Identification" },
+    { id: "ent103", title: "Business Plan Writing" },
+    { id: "ent104", title: "Startup Funding in Ghana" },
+    { id: "ent105", title: "Marketing Strategies for Small Businesses" },
+    { id: "ent106", title: "Customer Service and Business Growth" },
+    { id: "ent107", title: "Managing Risk in Business" },
+  ],
+},
+
+{
+  id: "ghana-law-constitution",
+  title: "Ghana Law & Constitution",
+  lessons: [
+    { id: "glc101", title: "Introduction to Ghana’s Legal System" },
+    { id: "glc102", title: "The 1992 Constitution Explained" },
+    { id: "glc103", title: "Fundamental Human Rights in Ghana" },
+    { id: "glc104", title: "Branches of Government (Executive, Legislature, Judiciary)" },
+    { id: "glc105", title: "Citizenship and National Duties" },
+    { id: "glc106", title: "Rule of Law and Democracy in Ghana" },
+    { id: "glc107", title: "Key Constitutional Bodies in Ghana" },
+  ],
+},
+
+{
+  id: "procurement",
+  title: "Procurement & Supply Chain",
+  lessons: [
+    { id: "pro101", title: "Introduction to Procurement" },
+    { id: "pro102", title: "Procurement Cycle and Procedures" },
+    { id: "pro103", title: "Public Procurement Law in Ghana (Act 663 & Amendments)" },
+    { id: "pro104", title: "Tendering, Bidding and Contract Award" },
+    { id: "pro105", title: "Supplier Evaluation and Vendor Management" },
+    { id: "pro106", title: "Ethics in Procurement" },
+    { id: "pro107", title: "Logistics and Inventory Management" },
+  ],
+},
+
+{
+  id: "demand-supply",
+  title: "Demand & Supply (Economics)",
+  lessons: [
+    { id: "ds101", title: "Introduction to Demand and Supply" },
+    { id: "ds102", title: "Law of Demand and Demand Curve" },
+    { id: "ds103", title: "Law of Supply and Supply Curve" },
+    { id: "ds104", title: "Market Equilibrium" },
+    { id: "ds105", title: "Factors Affecting Demand and Supply" },
+    { id: "ds106", title: "Price Elasticity of Demand and Supply" },
+    { id: "ds107", title: "Practical Market Examples in Ghana" },
+  ],
+},
+
+{
+  id: "practical-business",
+  title: "Practical Business (Real-Life Skills)",
+  lessons: [
+    { id: "pb101", title: "Starting a Small Business in Ghana" },
+    { id: "pb102", title: "How to Register a Business (GRA, Registrar General, SSNIT)" },
+    { id: "pb103", title: "Pricing Strategy and Profit Calculation" },
+    { id: "pb104", title: "Basic Accounting for Small Businesses" },
+    { id: "pb105", title: "Sales and Customer Relationship Management" },
+    { id: "pb106", title: "How to Advertise Online (WhatsApp, Facebook, Instagram)" },
+    { id: "pb107", title: "Business Risk and Fraud Prevention" },
+    { id: "pb108", title: "Managing Employees and Workplace Discipline" },
+  ],
+},
+
     {
       id: "computer-science",
       title: "Computer Science Fundamentals",
