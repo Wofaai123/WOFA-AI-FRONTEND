@@ -1,107 +1,294 @@
-/* RESET */
+/* =========================
+   GLOBAL RESET
+   ========================= */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
 }
 
-/* BACKGROUND */
+html, body {
+  height: 100%;
+  font-family: "Inter", Arial, sans-serif;
+}
+
 body {
-  min-height: 100vh;
   background: linear-gradient(135deg, #667eea, #764ba2);
-}
-
-/* NAV */
-.nav-bar {
-  display: flex;
-  gap: 16px;
-  padding: 10px 16px;
-  background: rgba(255,255,255,0.95);
-}
-
-.nav-bar a {
-  text-decoration: none;
-  font-weight: bold;
-  color: #1e3a8a;
-}
-
-/* HEADER */
-.top-bar {
-  position: relative;
-  height: 80px;
-}
-
-.app-title {
-  position: absolute;
-  left: 50%;
-  top: 10px;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-}
-
-.app-logo {
-  width: 120px;
-}
-
-.title-text .name {
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.title-text .tagline {
-  font-size: 12px;
-  color: #334155;
-}
-
-.dark-toggle {
-  position: absolute;
-  right: 16px;
-  top: 16px;
-  border: none;
-  background: white;
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-/* MAIN LAYOUT */
-.main-layout {
-  display: flex;
-  gap: 12px;
-  width: 95%;
-  max-width: 1400px;
-  margin: 0 auto;
-  height: calc(100vh - 200px);
-}
-
-/* CHAT */
-.chat-container {
-  flex: 1;
-  background: white;
-  border-radius: 14px;
-  display: flex;
-  flex-direction: column;
+  color: #0f172a;
   overflow: hidden;
 }
 
-.chat-box {
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
-  background: #f8fafc;
+/* =========================
+   APP WRAPPER
+   ========================= */
+.app-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.message {
-  padding: 10px;
+/* =========================
+   NAV BAR
+   ========================= */
+.nav-bar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding: 10px 16px;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.nav-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.nav-title {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 16px;
+}
+
+.nav-link {
+  text-decoration: none;
+  font-weight: 700;
+  color: #1e3a8a;
+  padding: 6px 12px;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+.nav-link:hover {
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.logout-link {
+  color: #dc2626;
+}
+
+/* =========================
+   THEME BUTTON
+   ========================= */
+.theme-toggle {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.05);
+}
+
+/* =========================
+   MAIN CONTENT LAYOUT
+   ========================= */
+.main-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 14px;
+  overflow: hidden;
+}
+
+/* =========================
+   LEARNING PANEL
+   ========================= */
+.learning-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.panel-header {
+  margin-bottom: 12px;
+}
+
+.panel-header h2 {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.panel-subtitle {
+  font-size: 13px;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.courses-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.courses-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.courses-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+/* =========================
+   COURSE LIST
+   ========================= */
+.course-list {
+  list-style: none;
+}
+
+.course-item {
+  padding: 12px 14px;
+  background: rgba(241, 245, 249, 0.9);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  color: #0f172a;
+  transition: 0.2s ease;
+  position: relative;
+}
+
+.course-item:hover {
+  background: rgba(219, 234, 254, 0.9);
+  transform: translateX(3px);
+}
+
+.course-item.active {
+  background: #0f766e;
+  color: white;
+}
+
+.course-item::after {
+  content: "▶";
+  position: absolute;
+  right: 12px;
+  opacity: 0.6;
+}
+
+.course-item.active::after {
+  content: "▼";
+}
+
+/* =========================
+   LESSON LIST
+   ========================= */
+.lesson-list {
+  list-style: none;
+  margin-left: 10px;
   margin-bottom: 10px;
-  border-radius: 8px;
+  padding-left: 14px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.lesson-list.open {
+  max-height: 600px;
+}
+
+.lesson-item {
+  padding: 10px 12px;
+  margin: 6px 0;
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #334155;
+  transition: 0.2s ease;
+}
+
+.lesson-item:hover {
+  background: rgba(224, 242, 254, 0.95);
+}
+
+.lesson-item.active {
+  background: #2563eb;
+  color: white;
+  font-weight: 900;
+}
+
+/* =========================
+   CHAT SECTION
+   ========================= */
+.chat-section {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CHAT BOX (REDUCED HEIGHT AUTOMATICALLY) */
+.chat-box {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: rgba(248, 250, 252, 0.95);
+}
+
+/* scroll */
+.chat-box::-webkit-scrollbar {
+  width: 7px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+/* messages */
+.message {
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 14px;
   max-width: 80%;
+  line-height: 1.5;
+  font-size: 15px;
 }
 
 .message.ai {
   background: #e5e7eb;
+  color: #0f172a;
 }
 
 .message.user {
@@ -110,148 +297,233 @@ body {
   margin-left: auto;
 }
 
-/* INPUT */
-.chat-input {
+/* =========================
+   CHAT INPUT
+   ========================= */
+.chat-input-area {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  background: white;
+}
+
+.input-group {
   display: flex;
-  gap: 6px;
-  padding: 8px;
-  border-top: 1px solid #e5e7eb;
+  gap: 10px;
+  align-items: center;
 }
 
-.chat-input input {
+.chat-input {
   flex: 1;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.15);
+  font-size: 15px;
+  outline: none;
 }
 
-.icon-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 6px;
+.chat-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+}
+
+.input-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   border: none;
-  background: #e0e7ff;
+  background: rgba(224, 231, 255, 0.9);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: 0.2s ease;
+}
+
+.input-icon:hover {
+  transform: scale(1.05);
 }
 
 .send-btn {
-  padding: 0 12px;
-  border-radius: 6px;
+  padding: 12px 18px;
+  border-radius: 14px;
   border: none;
   background: #1e3a8a;
   color: white;
-}
-
-/* LEARNING PANEL */
-.learning-panel {
-  width: 320px;
-  background: #eef2ff;
-  border-radius: 14px;
-  padding: 10px;
-  overflow-y: auto;
-}
-
-.learning-header {
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-/* COURSES */
-.course-list {
-  list-style: none;
-}
-
-.course-item {
-  padding: 12px;
-  background: white;
-  border-radius: 8px;
-  margin-bottom: 6px;
+  font-weight: 800;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-.course-item.active {
-  background: #0f766e;
-  color: white;
+.send-btn:hover {
+  background: #1d4ed8;
 }
 
-/* LESSONS */
-.lesson-list {
-  list-style: none;
-  padding-left: 15px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-
-.lesson-list.open {
-  max-height: 500px;
-}
-
-.lesson-item {
-  padding: 8px;
-  background: #f1f5f9;
-  border-radius: 6px;
-  margin: 4px 0;
-  cursor: pointer;
-}
-
-/* ACTION BAR */
-.bottom-actions {
+/* =========================
+   CHAT ACTION BUTTONS
+   ========================= */
+.chat-actions {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  background: white;
 }
 
-.talk-btn,
-.clear-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
+.chat-actions .action-btn {
+  width: 140px;
+  padding: 10px 12px;
+  border-radius: 12px;
   border: none;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-.talk-btn {
+.chat-actions .talk-btn {
   background: #16a34a;
   color: white;
 }
 
-.clear-btn {
+.chat-actions .clear-btn {
   background: #dc2626;
   color: white;
 }
 
-/* DARK MODE */
-body.dark {
-  background: #020617;
+.chat-actions .action-btn:hover {
+  transform: translateY(-2px);
 }
 
-body.dark .chat-container,
-body.dark .learning-panel {
-  background: #020617;
+/* =========================
+   SPEAK BUTTON INSIDE AI MESSAGE
+   ========================= */
+.speak-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #0ea5e9;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* =========================
+   LOGO ANIMATION
+   ========================= */
+.floating-logo {
+  animation: bounceFloat 2.5s ease-in-out infinite;
+}
+
+@keyframes bounceFloat {
+  0% { transform: translate(0px, 0px); }
+  25% { transform: translate(6px, -6px); }
+  50% { transform: translate(0px, -12px); }
+  75% { transform: translate(-6px, -6px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+/* =========================
+   DARK MODE
+   ========================= */
+body.dark {
+  background: linear-gradient(135deg, #020617, #0f172a);
+  color: #e2e8f0;
+}
+
+body.dark .learning-panel,
+body.dark .chat-section,
+body.dark .nav-bar {
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+}
+
+body.dark .chat-box {
+  background: rgba(2, 6, 23, 0.9);
 }
 
 body.dark .message.ai {
   background: #1e293b;
-  color: #e5e7eb;
+  color: #e2e8f0;
 }
 
-/* MOBILE FIX */
-@media (max-width: 768px) {
-  .main-layout {
-    flex-direction: column;
+body.dark .course-item {
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+}
+
+body.dark .lesson-item {
+  background: rgba(15, 23, 42, 0.95);
+  color: #e2e8f0;
+}
+
+body.dark .chat-input-area {
+  background: rgba(15, 23, 42, 0.92);
+}
+
+body.dark .chat-input {
+  background: rgba(2, 6, 23, 0.8);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+body.dark .chat-actions {
+  background: rgba(15, 23, 42, 0.92);
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+/* =========================
+   MOBILE RESPONSIVE
+   ========================= */
+@media (max-width: 900px) {
+  body {
+    overflow-y: auto;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr;
     height: auto;
+    overflow: visible;
   }
 
   .learning-panel {
-    width: 100%;
-    max-height: 300px;
+    max-height: 260px;
   }
 
-  .bottom-actions {
-    flex-direction: row;
+  .chat-section {
+    min-height: 520px;
   }
 }
 
+@media (max-width: 480px) {
+  .nav-links {
+    gap: 8px;
+  }
 
+  .nav-link {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .send-btn {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .input-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .chat-input {
+    font-size: 14px;
+  }
+
+  .chat-actions .action-btn {
+    width: 120px;
+    font-size: 13px;
+    padding: 10px;
+  }
+}
