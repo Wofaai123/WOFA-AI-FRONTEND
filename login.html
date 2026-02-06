@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WOFA AI – Login</title>
+  <title>WOFA AI – Welcome</title>
 
   <link rel="stylesheet" href="css/login.css" />
 </head>
@@ -13,73 +13,46 @@
   <div class="login-wrapper">
 
     <!-- =========================
-         TOP BAR
+         TOP BAR (LOGO ONLY)
          ========================= -->
     <div class="login-topbar">
 
-      <!-- LEFT YELLOW (Register with Google) -->
-      <button class="google-action-btn register-google" onclick="window.location.href='register.html'">
-        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
-        Register with Google
-      </button>
-
-      <!-- RED CIRCLE (Centered Logo) -->
       <div class="logo-center">
         <img src="assets/logo.png" alt="WOFA AI Logo" class="login-logo" />
       </div>
 
-      <!-- RIGHT YELLOW (Login with Google) -->
-      <button class="google-action-btn login-google" id="googleLoginBtn">
-        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
-        Login with Google
-      </button>
-
     </div>
 
     <!-- =========================
-         MAIN LOGIN CARD
+         WELCOME CARD
          ========================= -->
     <div class="login-card">
 
       <div class="login-header">
-        <h1>WOFA AI</h1>
+        <h1>Welcome to WOFA AI</h1>
         <p>Your Visual Learning Companion</p>
       </div>
 
-      <!-- FORM -->
-      <form id="loginForm" class="login-form">
+      <div class="welcome-message">
+        <p>
+          WOFA AI is here to help you learn, correct mistakes, and generate powerful responses using AI.
+        </p>
 
-        <h2>Login</h2>
-
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" placeholder="Enter your email" required />
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password" required />
-        </div>
-
-        <button type="submit" class="login-btn">
-          Login
+        <button class="login-btn" onclick="goToMainPage()">
+          Proceed to WOFA AI →
         </button>
-
-        <div class="login-links">
-          <p>
-            Don’t have an account?
-            <a href="register.html">Register</a>
-          </p>
-        </div>
-
-      </form>
+      </div>
 
     </div>
 
   </div>
 
   <!-- Scripts -->
-  <script src="js/login.js"></script>
+  <script>
+    function goToMainPage() {
+      window.location.href = "index.html";
+    }
+  </script>
 
 </body>
 </html>
