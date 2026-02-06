@@ -1,4 +1,11 @@
 /* =========================
+   WOFA AI MAIN STYLE (2026)
+   - MongoDB Free Version
+   - OpenAI Backbone Ready
+   - Clean Responsive UI
+   ========================= */
+
+/* =========================
    GLOBAL RESET
    ========================= */
 * {
@@ -84,10 +91,6 @@ body {
 
 .nav-link:hover {
   background: rgba(37, 99, 235, 0.12);
-}
-
-.logout-link {
-  color: #dc2626;
 }
 
 /* =========================
@@ -258,7 +261,9 @@ body {
   flex-direction: column;
 }
 
-/* CHAT BOX (REDUCED HEIGHT AUTOMATICALLY) */
+/* =========================
+   CHAT BOX
+   ========================= */
 .chat-box {
   flex: 1;
   padding: 16px;
@@ -266,7 +271,6 @@ body {
   background: rgba(248, 250, 252, 0.95);
 }
 
-/* scroll */
 .chat-box::-webkit-scrollbar {
   width: 7px;
 }
@@ -276,7 +280,9 @@ body {
   border-radius: 10px;
 }
 
-/* messages */
+/* =========================
+   CHAT MESSAGES
+   ========================= */
 .message {
   padding: 12px 14px;
   margin-bottom: 12px;
@@ -284,6 +290,7 @@ body {
   max-width: 80%;
   line-height: 1.5;
   font-size: 15px;
+  word-wrap: break-word;
 }
 
 .message.ai {
@@ -295,6 +302,23 @@ body {
   background: #2563eb;
   color: white;
   margin-left: auto;
+}
+
+/* Thinking Indicator */
+.message.thinking {
+  font-weight: 800;
+  opacity: 0.85;
+}
+
+.dots {
+  display: inline-block;
+  animation: blinkDots 1.2s infinite;
+}
+
+@keyframes blinkDots {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
 }
 
 /* =========================
@@ -408,6 +432,11 @@ body {
   color: white;
   font-weight: 800;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.speak-btn:hover {
+  transform: translateY(-2px);
 }
 
 /* =========================
@@ -438,6 +467,14 @@ body.dark .chat-section,
 body.dark .nav-bar {
   background: rgba(15, 23, 42, 0.92);
   color: #e2e8f0;
+}
+
+body.dark .nav-link {
+  color: #93c5fd;
+}
+
+body.dark .nav-link:hover {
+  background: rgba(59, 130, 246, 0.18);
 }
 
 body.dark .chat-box {
