@@ -1,8 +1,8 @@
 /* =========================
    WOFA AI MAIN STYLE (2026)
-   - MongoDB Free Version
-   - OpenAI Backbone Ready
-   - Clean Responsive UI
+   - Fully Responsive UI
+   - No Overflow on Any Screen
+   - Mobile, Tablet, Laptop, TV
    ========================= */
 
 /* =========================
@@ -16,22 +16,23 @@
 
 html, body {
   height: 100%;
+  width: 100%;
   font-family: "Inter", Arial, sans-serif;
+  overflow-x: hidden;
 }
 
 body {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: #0f172a;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
-/* =========================
-   APP WRAPPER
-   ========================= */
-.app-wrapper {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Prevent any element from causing overflow */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* =========================
@@ -42,16 +43,18 @@ body {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0,0,0,0.08);
-  padding: 10px 16px;
+  padding: 10px 14px;
 }
 
 .nav-container {
+  width: 100%;
   max-width: 1400px;
   margin: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .nav-brand {
@@ -64,8 +67,8 @@ body {
 }
 
 .nav-logo {
-  width: 40px;
-  height: 40px;
+  width: 62px;
+  height: 62px;
   object-fit: contain;
 }
 
@@ -77,16 +80,19 @@ body {
 
 .nav-links {
   display: flex;
-  gap: 16px;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .nav-link {
   text-decoration: none;
   font-weight: 700;
   color: #1e3a8a;
-  padding: 6px 12px;
+  padding: 7px 12px;
   border-radius: 10px;
   transition: 0.2s ease;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -100,10 +106,11 @@ body {
   background: white;
   border: 1px solid rgba(0,0,0,0.15);
   border-radius: 10px;
-  padding: 6px 10px;
+  padding: 7px 12px;
   font-size: 18px;
   cursor: pointer;
   transition: 0.2s ease;
+  flex-shrink: 0;
 }
 
 .theme-toggle:hover {
@@ -114,15 +121,14 @@ body {
    MAIN CONTENT LAYOUT
    ========================= */
 .main-content {
-  flex: 1;
   width: 100%;
   max-width: 1400px;
   margin: auto;
   padding: 14px;
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: minmax(260px, 360px) 1fr;
   gap: 14px;
-  overflow: hidden;
+  align-items: stretch;
 }
 
 /* =========================
@@ -135,6 +141,7 @@ body {
   padding: 14px;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
@@ -155,17 +162,18 @@ body {
   margin-top: 4px;
 }
 
-.courses-wrapper {
+.courses-container {
   flex: 1;
   overflow-y: auto;
   padding-right: 6px;
+  min-height: 0;
 }
 
-.courses-wrapper::-webkit-scrollbar {
+.courses-container::-webkit-scrollbar {
   width: 6px;
 }
 
-.courses-wrapper::-webkit-scrollbar-thumb {
+.courses-container::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.2);
   border-radius: 10px;
 }
@@ -259,6 +267,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 /* =========================
@@ -269,6 +278,7 @@ body {
   padding: 16px;
   overflow-y: auto;
   background: rgba(248, 250, 252, 0.95);
+  min-height: 0;
 }
 
 .chat-box::-webkit-scrollbar {
@@ -287,10 +297,17 @@ body {
   padding: 12px 14px;
   margin-bottom: 12px;
   border-radius: 14px;
-  max-width: 80%;
+  max-width: 85%;
   line-height: 1.5;
   font-size: 15px;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.message img {
+  margin-top: 10px;
+  border-radius: 12px;
+  max-width: 100%;
 }
 
 .message.ai {
@@ -330,10 +347,11 @@ body {
   background: white;
 }
 
-.input-group {
+.input-wrapper {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .chat-input {
@@ -343,6 +361,7 @@ body {
   border: 1px solid rgba(0,0,0,0.15);
   font-size: 15px;
   outline: none;
+  min-width: 0;
 }
 
 .chat-input:focus {
@@ -362,13 +381,14 @@ body {
   justify-content: center;
   font-size: 18px;
   transition: 0.2s ease;
+  flex-shrink: 0;
 }
 
 .input-icon:hover {
   transform: scale(1.05);
 }
 
-.send-btn {
+.send-button {
   padding: 12px 18px;
   border-radius: 14px;
   border: none;
@@ -377,47 +397,18 @@ body {
   font-weight: 800;
   cursor: pointer;
   transition: 0.2s ease;
+  flex-shrink: 0;
 }
 
-.send-btn:hover {
+.send-button:hover {
   background: #1d4ed8;
 }
 
 /* =========================
-   CHAT ACTION BUTTONS
+   ACTION BAR (MOBILE FOOTER)
    ========================= */
-.chat-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-  border-top: 1px solid rgba(0,0,0,0.08);
-  background: white;
-}
-
-.chat-actions .action-btn {
-  width: 140px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: none;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.chat-actions .talk-btn {
-  background: #16a34a;
-  color: white;
-}
-
-.chat-actions .clear-btn {
-  background: #dc2626;
-  color: white;
-}
-
-.chat-actions .action-btn:hover {
-  transform: translateY(-2px);
+.action-bar {
+  display: none;
 }
 
 /* =========================
@@ -437,21 +428,6 @@ body {
 
 .speak-btn:hover {
   transform: translateY(-2px);
-}
-
-/* =========================
-   LOGO ANIMATION
-   ========================= */
-.floating-logo {
-  animation: bounceFloat 2.5s ease-in-out infinite;
-}
-
-@keyframes bounceFloat {
-  0% { transform: translate(0px, 0px); }
-  25% { transform: translate(6px, -6px); }
-  50% { transform: translate(0px, -12px); }
-  75% { transform: translate(-6px, -6px); }
-  100% { transform: translate(0px, 0px); }
 }
 
 /* =========================
@@ -506,23 +482,21 @@ body.dark .chat-input {
   border: 1px solid rgba(255,255,255,0.15);
 }
 
-body.dark .chat-actions {
-  background: rgba(15, 23, 42, 0.92);
-  border-top: 1px solid rgba(255,255,255,0.12);
+/* =========================
+   RESPONSIVE BREAKPOINTS
+   ========================= */
+
+/* Tablets and smaller laptops */
+@media (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 300px 1fr;
+  }
 }
 
-/* =========================
-   MOBILE RESPONSIVE
-   ========================= */
+/* Tablets / Large phones */
 @media (max-width: 900px) {
-  body {
-    overflow-y: auto;
-  }
-
   .main-content {
     grid-template-columns: 1fr;
-    height: auto;
-    overflow: visible;
   }
 
   .learning-panel {
@@ -532,20 +506,39 @@ body.dark .chat-actions {
   .chat-section {
     min-height: 520px;
   }
+
+  .nav-container {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .nav-links {
+    justify-content: center;
+  }
 }
 
-@media (max-width: 480px) {
-  .nav-links {
-    gap: 8px;
+/* Mobile phones */
+@media (max-width: 600px) {
+  .nav-logo {
+    width: 52px;
+    height: 52px;
   }
 
-  .nav-link {
-    font-size: 13px;
-    padding: 6px 8px;
+  .nav-title {
+    font-size: 14px;
   }
 
-  .send-btn {
-    padding: 10px 12px;
+  .chat-box {
+    padding: 14px;
+  }
+
+  .message {
+    font-size: 14px;
+    max-width: 92%;
+  }
+
+  .send-button {
+    padding: 11px 12px;
     font-size: 14px;
   }
 
@@ -557,10 +550,16 @@ body.dark .chat-actions {
   .chat-input {
     font-size: 14px;
   }
+}
 
-  .chat-actions .action-btn {
-    width: 120px;
-    font-size: 13px;
-    padding: 10px;
+/* Very small devices */
+@media (max-width: 420px) {
+  .nav-link {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .send-button {
+    padding: 10px 10px;
   }
 }
