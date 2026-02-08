@@ -1,14 +1,15 @@
 /* ==========================================================
    WOFA AI FRONTEND SCRIPT.JS (Feb 2026 - Groq Version)
-   - MongoDB Removed
    - Authentication Removed
-   - Groq AI Backend Support
+   - Backend AI Support
    - Courses/Lessons Optional
    - Smart Tutor Mode (Kids + Adult)
    - Voice Input + Voice Output
    - Auto Speak After Typing
    - Sentence-by-sentence Reading
-   - Pause + Resume + Stop Support
+   - Outline-First Teaching Mode (7+ outlines required)
+   - Auto Teach When Lesson Clicked
+   - NO EMOJIS IN TEACHING
    ========================================================== */
 
 /* =========================
@@ -30,6 +31,12 @@ let isPaused = false;
 const chatBox = document.getElementById("chatBox");
 const input = document.getElementById("questionInput");
 const darkToggle = document.getElementById("darkToggle");
+
+/* =========================
+   CONFIG
+   ========================= */
+const API_BASE_URL =
+  window.WOFA_CONFIG?.API_BASE_URL || "https://wofa-ai-backend.onrender.com/api";
 
 /* =========================
    THEME (DARK MODE)
@@ -64,6 +71,27 @@ function scrollChatToBottom() {
 
 function sanitizeHTML(text) {
   return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/* =========================
+   API POST HELPER
+   ========================= */
+async function apiPost(endpoint, payload) {
+  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "API request failed");
+  }
+
+  return data;
 }
 
 /* =========================
@@ -110,62 +138,53 @@ function isKidsMode(course, lesson) {
 }
 
 /* =========================
-   SMART QUESTION BUILDER
+   OUTLINE-FIRST PROMPT BUILDER
+   (NO EMOJIS)
    ========================= */
-function buildSmartQuestion(userQuestion) {
-  const { course, lesson } = getLearningContext();
+function buildOutlineFirstPrompt(userQuestion, course, lesson) {
   const kidsMode = isKidsMode(course, lesson);
 
-  if (userQuestion && userQuestion.trim().length > 0) {
-    if (kidsMode) {
-      return `
-You are teaching a CHILD.
-Use very simple English.
-Use short sentences.
-Use friendly examples.
-Use emojis.
-Explain step-by-step.
-Ask one small question at the end.
+  const topic = lesson || course || userQuestion || "General Topic";
 
-Child Question: ${userQuestion}
-      `;
-    }
+  if (kidsMode) {
+    return `
+You are WOFA AI, a Montessori-style teacher.
 
-    return userQuestion;
+TOPIC: ${topic}
+
+RULES (VERY IMPORTANT):
+1. First create at least 7 outlines (number them 1 to 7 or more).
+2. After the outlines, teach EACH outline clearly one by one.
+3. Use very simple English.
+4. Use short sentences.
+5. Use examples children understand.
+6. Do NOT use emojis.
+7. End with 3 simple practice questions.
+8. End with encouragement.
+
+Student Question:
+${userQuestion || "Teach this topic clearly."}
+    `;
   }
 
-  if (course && lesson) {
-    if (kidsMode) {
-      return `
-Teach this lesson for a CHILD (Montessori style):
-Lesson: ${lesson}
+  return `
+You are WOFA AI, a smart educational tutor.
 
-Rules:
-- Explain slowly step-by-step
-- Use simple English
-- Use fun examples children understand
-- Use short sentences
-- Ask 3 simple practice questions
-- End with encouragement
-      `;
-    }
+TOPIC: ${topic}
 
-    return `Teach me this lesson: ${lesson}. Start from beginner level and explain step-by-step with examples and exercises.`;
-  }
+RULES (VERY IMPORTANT):
+1. Before answering, create at least 7 outlines (number them).
+2. Then teach ALL outlines one by one in detail.
+3. Use step-by-step teaching.
+4. Use examples, analogies, and exercises.
+5. Make the explanation simple but professional.
+6. Do NOT use emojis.
+7. End with a short summary.
+8. End with 5 practice questions.
 
-  if (course && !lesson) {
-    if (kidsMode) {
-      return `
-Teach the topic "${course}" like a Montessori teacher.
-Use simple English, short sentences, and examples children understand.
-Give small practice questions.
-      `;
-    }
-
-    return `Teach me the topic: ${course}. Start from the basics and build gradually with examples and practice questions.`;
-  }
-
-  return "Teach me something valuable today in a clear step-by-step way.";
+Student Question:
+${userQuestion || "Teach this topic clearly."}
+  `;
 }
 
 /* =========================
@@ -283,7 +302,7 @@ function readLastAnswer() {
   }
 
   const cleanText = lastAIMessageElement.innerText
-    .replace("🔊 Listen", "")
+    .replace("Listen", "")
     .trim();
 
   speakLineByLine(cleanText);
@@ -313,15 +332,14 @@ async function typeAIMessage(text) {
 
   const speakBtn = document.createElement("button");
   speakBtn.className = "speak-btn";
-  speakBtn.textContent = "🔊 Listen";
+  speakBtn.textContent = "Listen";
   speakBtn.onclick = readLastAnswer;
 
   msg.appendChild(speakBtn);
   scrollChatToBottom();
 
-  // ✅ AUTO SPEAK AFTER FINISH TYPING
   if (autoSpeakEnabled) {
-    const cleanText = msg.innerText.replace("🔊 Listen", "").trim();
+    const cleanText = msg.innerText.replace("Listen", "").trim();
     speakLineByLine(cleanText);
   }
 }
@@ -353,30 +371,34 @@ function startVoiceInput() {
 }
 
 /* =========================
-   SEND QUESTION TO GROQ BACKEND
+   SEND QUESTION TO BACKEND
    ========================= */
-async function sendQuestion() {
+async function sendQuestion(forceAutoTeach = false) {
   if (isThinking) return;
 
   const userQuestion = input.value.trim();
   const { course, lesson } = getLearningContext();
 
-  if (!userQuestion && !course) {
-    alert("Type a question or select a course.");
+  if (!userQuestion && !course && !lesson) {
+    alert("Type a question or select a course/lesson.");
     return;
   }
 
-  addUserMessage(userQuestion || "📘 Start teaching me");
+  if (!userQuestion && forceAutoTeach) {
+    addUserMessage(`Start teaching: ${lesson || course}`);
+  } else {
+    addUserMessage(userQuestion || "Start teaching");
+  }
 
   input.value = "";
   isThinking = true;
   showThinking();
 
-  const finalQuestion = buildSmartQuestion(userQuestion);
+  const finalPrompt = buildOutlineFirstPrompt(userQuestion, course, lesson);
 
   try {
     const data = await apiPost("/chat", {
-      question: finalQuestion,
+      question: finalPrompt,
       course,
       lesson
     });
@@ -384,17 +406,27 @@ async function sendQuestion() {
     removeThinking();
     isThinking = false;
 
-    await typeAIMessage(data.answer || "⚠️ No response generated.");
+    await typeAIMessage(data.answer || "No response generated.");
 
   } catch (err) {
     removeThinking();
     isThinking = false;
 
     await typeAIMessage(
-      "❌ WOFA AI cannot respond right now. Please check your internet or backend server."
+      "WOFA AI cannot respond right now. Please check your internet or backend server."
     );
   }
 }
+
+/* =========================
+   AUTO TEACH WHEN LESSON CLICKED
+   ========================= */
+window.autoTeachLesson = function(courseTitle, lessonTitle) {
+  localStorage.setItem("wofaActiveCourse", courseTitle || "");
+  localStorage.setItem("wofaActiveLesson", lessonTitle || "");
+
+  sendQuestion(true);
+};
 
 /* =========================
    ENTER KEY SUPPORT
@@ -403,7 +435,7 @@ if (input) {
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      sendQuestion();
+      sendQuestion(false);
     }
   });
 }
@@ -417,9 +449,9 @@ function clearChat() {
 
   chatBox.innerHTML = `
     <div class="message ai">
-      <strong>Chat cleared 🧹</strong><br><br>
-      Ask me anything or select a course & lesson.<br>
-      I’m ready to teach you again 🎓
+      <strong>Chat cleared</strong><br><br>
+      Ask any question or select a course and lesson.<br>
+      I am ready to teach again.
     </div>
   `;
 }
@@ -436,12 +468,10 @@ function tutorWelcomeIfNeeded() {
     const intro = document.createElement("div");
     intro.className = "message ai";
     intro.innerHTML = `
-      <strong>Welcome to WOFA AI 🎓</strong><br><br>
-      I can teach you ANYTHING from Montessori → University → PhD.<br><br>
-      ✅ Select a course & lesson on the left<br>
-      ✅ Ask any question<br>
-      ✅ Learn step-by-step like a real classroom<br><br>
-      <em>Start by typing your first question!</em>
+      <strong>Welcome to WOFA AI</strong><br><br>
+      I can teach you from Montessori to University and beyond.<br><br>
+      Select a course and lesson to begin automatic teaching.<br>
+      Or type a question and press Enter.
     `;
 
     chatBox.appendChild(intro);

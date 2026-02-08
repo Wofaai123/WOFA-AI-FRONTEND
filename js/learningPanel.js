@@ -17,7 +17,30 @@ document.addEventListener("DOMContentLoaded", () => {
      ─────────────────────────────────────────────── */
   const coursesData = [
     {
-      id: "theology-christian",
+      id: "bba",
+      title: "Bachelor of Business Administration (BBA)",
+      lessons: [
+        { id: "bba101", title: "Introduction to Business" },
+        { id: "bba102", title: "Principles of Management" },
+        { id: "bba103", title: "Financial Accounting" },
+        { id: "bba104", title: "Business Mathematics" }
+      ]
+  },
+  { 
+      id: "entrepreneurship",
+      title: "Entrepreneurship",
+      lessons: [
+        { id: "ent101", title: "What is Entrepreneurship?" },
+        { id: "ent102", title: "Business Ideas and Opportunity Identification" },
+        { id: "ent103", title: "Business Plan Writing" },
+        { id: "ent104", title: "Startup Funding in Ghana" },
+        { id: "ent105", title: "Marketing Strategies for Small Businesses" },
+        { id: "ent106", title: "Customer Service and Business Growth" },
+        { id: "ent107", title: "Managing Risk in Business" }
+          ]
+    },
+    {
+id: "theology-christian",
       title: "Theology – Christian Studies",
       lessons: [
         { id: "act101", title: "Biblical Interpretation in African Cultures" },
@@ -29,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "act107", title: "Poverty, Justice & Biblical Themes" },
         { id: "act108", title: "Church Leadership & Administration in Africa" }
       ]
-     
   },
   {
   id: "prophetic-work",
@@ -44,45 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
     { id: "pw107", title: "Deliverance (Exorcism) and Spiritual Warfare" },
     { id: "pw108", title: "The Fivefold Ministries (Ephesians 4:11)" },
     { id: "pw109", title: "Prophetic Prayer and Intercession" }
-   ]
 
-
-    },
-    {
-      id: "theology-islamic",
-      title: "Theology – Islamic Studies",
-      lessons: [
-        { id: "isa101", title: "Spread of Islam in Africa (Historical)" },
-        { id: "isa102", title: "Sufism and Spiritual Traditions in West Africa" },
-        { id: "isa103", title: "Sharia Application in African Societies" },
-        { id: "isa104", title: "Contemporary Muslim Issues in Africa" },
-        { id: "isa105", title: "Interfaith Dialogue: Christian-Muslim Relations" },
-        { id: "isa106", title: "Islamic Ethics and Social Justice" }
       ]
     },
     {
-      id: "african-spirituality",
-      title: "African Indigenous Spirituality & Interfaith",
-      lessons: [
-        { id: "ais101", title: "Traditional African Religions & Cosmology" },
-        { id: "ais102", title: "Ancestor Veneration & Rituals" },
-        { id: "ais103", title: "Syncretism: Christianity, Islam & Indigenous Faiths" },
-        { id: "ais104", title: "Spirituality, Environment & Sustainability" },
-        { id: "ais105", title: "Peacebuilding Through Interfaith Dialogue" }
-      ]
-    },
-    {
-      id: "bba",
-      title: "Bachelor of Business Administration (BBA)",
-      lessons: [
-        { id: "bba101", title: "Introduction to Business" },
-        { id: "bba102", title: "Principles of Management" },
-        { id: "bba103", title: "Financial Accounting" },
-        { id: "bba104", title: "Business Mathematics" }
-      ]
-    },
-    {
-      id: "african-entrepreneurship",
+      id: "entrepreneurship",
       title: "African Entrepreneurship & Innovation",
       lessons: [
         { id: "aei101", title: "Startup Ecosystems in Africa" },
@@ -194,19 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "bc104", title: "Presentation Skills and Public Speaking" },
         { id: "bc105", title: "Negotiation and Conflict Resolution" },
         { id: "bc106", title: "Professional Communication Etiquette" }
-      ]
-    },
-    {
-      id: "entrepreneurship",
-      title: "Entrepreneurship",
-      lessons: [
-        { id: "ent101", title: "What is Entrepreneurship?" },
-        { id: "ent102", title: "Business Ideas and Opportunity Identification" },
-        { id: "ent103", title: "Business Plan Writing" },
-        { id: "ent104", title: "Startup Funding in Ghana" },
-        { id: "ent105", title: "Marketing Strategies for Small Businesses" },
-        { id: "ent106", title: "Customer Service and Business Growth" },
-        { id: "ent107", title: "Managing Risk in Business" }
       ]
     },
     {
